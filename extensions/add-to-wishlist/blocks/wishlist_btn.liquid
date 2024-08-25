@@ -1,0 +1,42 @@
+<script src="{{ "atw.js" | asset_url }}" defer></script>
+
+<atw-btn
+  shop="{{ shop.domain }}"
+  product="{{ product.id }}"
+  variant="{{ product.selected_or_first_available_variant.id }}"
+  properties='{{ product.selected_or_first_available_variant | json }}'
+></atw-btn>
+
+<script defer>
+  window.addEventListener("DOMContentLoaded", (e) => {
+    const observer = new MutationObserver((list, obs) => {
+      const variantId = new URLSearchParams(window.location.search).get("variant");
+      for (const item of list) {
+        Array.from(document.querySelectorAll("atw-btn")).forEach(el => {
+          const updateableAttribute = "variant";
+          const existingVariantId = el?.getAttribute(updateableAttribute);
+          if (existingVariantId !== variantId && variantId) {
+            el.setAttribute(updateableAttribute, variantId);
+            const variants = {{ product.variants | json }};
+            const variant = variants?.find(v => String(v.id) === String(variantId));
+            if (variant) el.setAttribute("properties", JSON.stringify(variant));
+          }
+        })
+      }
+    });
+    observer.observe(document.body, {
+      attributes: true,
+      subtree: true
+    })
+  })
+</script>
+
+{% schema %}
+{
+  "name": "Wishlist Button",
+  "target": "section",
+  "settings": [
+
+  ]
+}
+{% endschema %}

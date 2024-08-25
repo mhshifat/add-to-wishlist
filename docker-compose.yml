@@ -1,0 +1,13 @@
+services:
+  shopify:
+    build: .
+    environment:
+      - SHOPIFY_FLAG_STORE=add-wishlist.myshopify.com
+      - SHOPIFY_API_KEY=946ef77decce3eb4b8b56adef6f69a6f
+      - SHOPIFY_API_SECRET=9421f97a4a9cb1724ed10b56e0bb5697
+      - API_SECRET_KEY=[Your API SECRET]
+      - SHOPIFY_APP_URL=https://95cf3f5e6b38.ngrok.app
+      - SHOPIFY_SCOPES=read_products,write_products
+      - SCOPES=read_products,write_products
+    ports:
+      - '3000:3000'

@@ -1,0 +1,33 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "946ef77decce3eb4b8b56adef6f69a6f"
+name = "add-to-wishlist"
+handle = "add-to-wishlist-2"
+application_url = "https://a1b8-103-103-124-166.ngrok-free.app"
+embedded = true
+
+[build]
+automatically_update_urls_on_dev = true
+dev_store_url = "add-wishlist.myshopify.com"
+include_config_on_deploy = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_themes,write_products"
+
+[auth]
+redirect_urls = [
+  "https://a1b8-103-103-124-166.ngrok-free.app/auth/callback",
+  "https://a1b8-103-103-124-166.ngrok-free.app/auth/shopify/callback",
+  "https://a1b8-103-103-124-166.ngrok-free.app/api/auth/callback"
+]
+
+[webhooks]
+api_version = "2024-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks"
+
+[pos]
+embedded = false
