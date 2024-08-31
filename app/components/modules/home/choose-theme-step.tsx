@@ -1,13 +1,18 @@
-import { Await, useLoaderData } from "@remix-run/react"
+import { Await, useLoaderData, useNavigate } from "@remix-run/react"
 import { useState } from "react";
 import Button from "~/components/ui/button";
 import { ITheme } from "~/domain/theme";
 import { cn } from "~/utils/helpers";
 
 export default function ChooseThemeStep() {
-  const { themesPromise } = useLoaderData() as { themesPromise:  unknown };
+  const navigate = useNavigate();
+  const { themesPromise, shop, appId } = useLoaderData() as { themesPromise:  unknown; shop: string; appId: string };
   const [selectedTheme, setSelectedTheme] = useState<string | null>(null);
 
+  function handleGettingStarted() {
+    window.open(`https://${shop}/admin/themes/${selectedTheme}/editor?template=product&addAppBlockId=${appId}/wishlist_btn&target=mainSection`, "__blank");
+    navigate("/app/customization");
+  }
   return (
     <div className="w-full">
       <Await resolve={themesPromise}>
@@ -35,7 +40,7 @@ export default function ChooseThemeStep() {
         }}
       </Await>
 
-      <Button className="mt-10">Continue</Button>
+      <Button className="mt-10" disabled={!selectedTheme} onClick={handleGettingStarted}>Get Started</Button>
     </div>
   )
 }

@@ -8,12 +8,7 @@ const STEPS = [
     title: "Choose Theme",
     description: "Choose a theme to install the app",
     component: lazy(() => import("./choose-theme-step"))
-  },
-  {
-    title: "Add Blocks",
-    description: "Add your wishlist buttons",
-    component: lazy(() => import("./choose-theme-step"))
-  },
+  }
 ];
 
 export default function HomeElements() {

@@ -9,7 +9,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const themesPromise = getThemes(process.env.SHOP!, accessToken!);
 
   return defer({
-    themesPromise
+    themesPromise,
+    shop: session.shop,
+    appId: process.env.SHOPIFY_ADD_TO_WISHLIST_ID
   });
 }
 
