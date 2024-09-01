@@ -5,7 +5,7 @@ import CustomizationElements from "~/components/modules/customization";
 export async function loader({
   request,
 }: ActionFunctionArgs) {
-  const customization = await prisma.customization.findFirst({
+  const customization = await prisma?.customization.findFirst({
     where: {
       shop: process.env.SHOP!
     }
@@ -26,13 +26,13 @@ export async function action({
       shop: process.env.SHOP!,
       atwBtnStyles: body?.atwBtnStyles || ""
     }
-    if (id) await prisma.customization.update({
+    if (id) await prisma?.customization.update({
       where: {
         id,
       },
       data: payload
     });
-    else await prisma.customization.create({
+    else await prisma?.customization.create({
       data: payload
     });
     return json({
