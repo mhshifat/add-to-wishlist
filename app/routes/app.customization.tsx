@@ -1,6 +1,7 @@
 import { ActionFunctionArgs, json } from "@remix-run/node";
 import { Page } from "~/components/layouts";
 import CustomizationElements from "~/components/modules/customization";
+import prisma from '../db.server';
 
 export async function loader({
   request,
