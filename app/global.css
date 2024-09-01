@@ -2,16 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  font-size: 10px;
-}
+@layer base {
+  html {
+    font-size: 10px;
+  }
 
-:root {
-  --primary: 38 92% 50%;
-  --border: 214 32% 91%;
-  --background: 210 40% 98%;
-  --foreground: 240 6% 10%;
-  --background-secondary: 213 27% 84%;
+  :root {
+    --primary: 38 92% 50%;
+    --border: 214 32% 91%;
+    --background: 210 40% 98%;
+    --foreground: 240 6% 10%;
+    --background-secondary: 213 27% 84%;
 
-  --size: 3.5rem;
+    --size: 3.5rem;
+  }
 }
