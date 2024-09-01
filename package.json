@@ -17,7 +17,7 @@
     "prisma": "prisma",
     "graphql-codegen": "graphql-codegen",
     "vite": "vite",
-    "postinstall" :  "prisma generate"
+    "postinstall": "prisma generate"
   },
   "type": "module",
   "engines": {
@@ -40,6 +40,7 @@
     "prisma": "^5.11.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "remix-utils": "^7.6.0",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "uuid": "^10.0.0",

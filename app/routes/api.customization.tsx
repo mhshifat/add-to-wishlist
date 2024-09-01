@@ -1,6 +1,7 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import prisma from '../db.server';
+import { cors } from "remix-utils/cors";
 
 export async function loader({
   request,
@@ -17,8 +18,8 @@ export async function loader({
       shop
     }
   });
-  return json({
+  return await cors(request, json({
     success: true,
     data: customization
-  });
+  }));
 }
