@@ -54,6 +54,22 @@ class ATWButton extends HTMLElement {
     }
     this.service = new LocalStorageService();
     this.updateElementState();
+    this.fetchBtnStyles();
+  }
+
+  async fetchBtnStyles() {
+    try {
+      // TODO: Update
+      const res = await fetch(`https://e627-103-103-124-162.ngrok-free.app/api/customization?shop=${this.state.shop}`, {
+        headers: {
+          "ngrok-skip-browser-warning": "69420",
+        }
+      });
+      const json = await res.json();
+      this.shadowRoot.querySelector("button")?.setAttribute("style", json?.data?.atwBtnStyles);
+    } catch (err) {
+      console.error(err);
+    }
   }
 
   attachBtnEventListener() {
@@ -88,9 +104,36 @@ class ATWButton extends HTMLElement {
 
   render(props) {
     this.shadowRoot.innerHTML = `
+      <style>${this.css(props)}</style>
       ${this.template(props)}
     `;
     this.attachBtnEventListener();
+  }
+
+  css() {
+    return `
+      :host > button {
+        --atw-btn-background: #101010;
+        --atw-btn-foreground: #FFFFFF;
+        --atw-btn-border: #101010;
+        --atw-btn-px: 25px;
+        --atw-btn-py: 16px;
+        --atw-btn-height: auto;
+        --atw-btn-width: auto;
+        --atw-btn-root: 10px;
+        width: var(--atw-btn-width);
+        height: var(--atw-btn-height);
+        font-size: calc((var(--atw-btn-root)* 1.8));
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--atw-btn-background);
+        color: var(--atw-btn-foreground);
+        padding: var(--atw-btn-py) var(--atw-btn-px);
+        border: 1px solid var(--atw-btn-border);
+        cursor: pointer;
+      }
+    `;
   }
 
   template({ isChecked }) {
