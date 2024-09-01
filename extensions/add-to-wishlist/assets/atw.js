@@ -60,7 +60,7 @@ class ATWButton extends HTMLElement {
   async fetchBtnStyles() {
     try {
       // TODO: Update
-      const res = await fetch(`https://e627-103-103-124-162.ngrok-free.app/api/customization?shop=${this.state.shop}`, {
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/customization?shop=${this.state.shop}`, {
         headers: {
           "ngrok-skip-browser-warning": "69420",
         }
