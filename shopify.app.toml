@@ -3,7 +3,7 @@
 client_id = "d5efe2606979f4ccc34b1762e2bae871"
 name = "Add To Wishlist"
 handle = "add-to-wishlist-4"
-application_url = "https://add-to-wishlist.vercel.app"
+application_url = "https://4343-103-103-124-174.ngrok-free.app"
 embedded = true
 
 [build]
@@ -17,9 +17,9 @@ scopes = "read_themes,write_products"
 
 [auth]
 redirect_urls = [
-  "https://add-to-wishlist.vercel.app/auth/callback",
-  "https://add-to-wishlist.vercel.app/auth/shopify/callback",
-  "https://add-to-wishlist.vercel.app/api/auth/callback"
+  "https://4343-103-103-124-174.ngrok-free.app/auth/callback",
+  "https://4343-103-103-124-174.ngrok-free.app/auth/shopify/callback",
+  "https://4343-103-103-124-174.ngrok-free.app/api/auth/callback"
 ]
 
 [webhooks]
