@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "d5efe2606979f4ccc34b1762e2bae871"
-name = "Add To Wishlist"
+name = "Annon Wish Bucket"
 handle = "add-to-wishlist-4"
 application_url = "https://add-to-wishlist.vercel.app"
 embedded = true
