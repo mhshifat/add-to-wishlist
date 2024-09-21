@@ -84,4 +84,8 @@ export async function action({
       }));
     }
   }
+
+  return await cors(request, json({
+    success: true,
+  }));
 }
