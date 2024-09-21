@@ -46,6 +46,7 @@ export async function action({
   switch (request.method) {
     case "POST": {
       const { id, ...body } = await request.json();
+      console.log({ body });
       const wishlistItem = await prisma.wishlist.create({
         data: {
           shop: body.shop,
@@ -55,7 +56,7 @@ export async function action({
           compareAtPrice: body.compareAtPrice,
           productId: body.productId,
           // TODO:
-          customerId: ""
+          customerId: "asdasdasdasd"
         }
       });
       return await cors(request, json({
@@ -86,8 +87,4 @@ export async function action({
       }));
     }
   }
-
-  return await cors(request, json({
-    success: true,
-  }));
 }
