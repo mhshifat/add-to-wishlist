@@ -27,7 +27,6 @@ export default function CustomizationElements() {
   const wishlistBtnStylesRef = useRef(structuredClone(DEFAULT_WISHLIST_BTN_STYLES));
   const [wishlistBtnStyles, setWishlistBtnStyles] = useState(structuredClone(DEFAULT_WISHLIST_BTN_STYLES));
   const wishlistBtnStylesObj = {
-    ...wishlistBtnStyles,
     width: "var(--atw-btn-width)",
     height: "var(--atw-btn-height)",
     fontSize: "calc((var(--atw-btn-root) * 1.8))",
@@ -50,26 +49,21 @@ export default function CustomizationElements() {
 
   useEffect(() => {
     if (!customization?.id) return;
-    const payload = customization?.atwBtnStyles?.split(";")?.map(item => item?.trim())?.filter(item => item?.startsWith("--")).filter(Boolean).reduce<Record<string, string>>((acc, val) => {
-      const [key, value] = val.split(":");
-      acc[key] = value?.trim();
-      return acc;
-    }, {});
+    const payload = JSON.parse(customization?.styleVariables || "{}");
     setWishlistBtnStyles(payload as typeof wishlistBtnStyles);
     wishlistBtnStylesRef.current = payload as typeof wishlistBtnStyles;
   }, [customization?.id])
 
   function handleSave() {
     setLoading(true);
-    const vars = Object.entries(wishlistBtnStylesObj)?.filter(([key]) => key.startsWith("--"))?.map(([key, val]) => `${key}: ${val}`).join("; ");
     const dummy = document.createElement('p');
     Object.assign(dummy.style, wishlistBtnStylesObj);
-    dummy.setAttribute("style", `${vars};${dummy.getAttribute("style")}`);
-    const styles = dummy.getAttribute("style");
+
     try {
       fetcher.submit({
         id: customization?.id,
-        atwBtnStyles: styles,
+        atwBtnStyles: dummy.getAttribute("style"),
+        styleVariables: JSON.stringify(wishlistBtnStyles)
       }, {
         method: "POST",
         encType: "application/json",
@@ -118,7 +112,9 @@ export default function CustomizationElements() {
         </Accordion>
 
         <Preview>
-          <button style={wishlistBtnStylesObj}>Add To Wishlist</button>
+          <div style={wishlistBtnStyles as CSSProperties}>
+            <button style={wishlistBtnStylesObj}>Add To Wishlist</button>
+          </div>
         </Preview>
       </Container>
       <div className="fixed bottom-0 left-0 w-full py-3 px-5">

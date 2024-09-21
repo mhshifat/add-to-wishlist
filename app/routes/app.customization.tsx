@@ -2,13 +2,15 @@ import { ActionFunctionArgs, json } from "@remix-run/node";
 import { Page } from "~/components/layouts";
 import CustomizationElements from "~/components/modules/customization";
 import prisma from '../db.server';
+import { authenticate } from "~/shopify.server";
 
 export async function loader({
   request,
 }: ActionFunctionArgs) {
+  const { session } = await authenticate.admin(request);
   const customization = await prisma?.customization.findFirst({
     where: {
-      shop: process.env.SHOP!
+      shop: session.shop!
     }
   });
 
@@ -20,12 +22,14 @@ export async function loader({
 export async function action({
   request,
 }: ActionFunctionArgs) {
+  const { session } = await authenticate.admin(request);
   const { id, ...body } = await request.json();
 
   try {
     const payload = {
-      shop: process.env.SHOP!,
-      atwBtnStyles: body?.atwBtnStyles || ""
+      shop: session.shop,
+      atwBtnStyles: body?.atwBtnStyles || "",
+      styleVariables: body?.styleVariables || "",
     }
     if (id) await prisma?.customization.update({
       where: {

@@ -33,7 +33,18 @@ model Session {
 }
 
 model Customization {
-  id            Int    @id @default(autoincrement())
-  shop          String
-  atwBtnStyles  String
+  id              Int    @id @default(autoincrement())
+  shop            String
+  atwBtnStyles    String
+  styleVariables  String
+}
+
+model Wishlist {
+  id              Int    @id @default(autoincrement())
+  shop            String
+  images          String[]
+  name            String
+  price           String
+  compareAtPrice  String
+  productId       String
 }

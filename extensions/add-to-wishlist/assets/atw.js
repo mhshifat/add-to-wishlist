@@ -1,36 +1,75 @@
-class LocalStorageService {
+class BackendService {
   constructor() {
-    if (!LocalStorageService.instance) LocalStorageService.instance = this;
-    return LocalStorageService.instance;
+    if (!BackendService.instance) BackendService.instance = this;
+    return BackendService.instance;
   }
 
-  getLists() {
-    const productsStr = localStorage.getItem("WISHLIST_PRODUCTS");
-    const parsedProducts = JSON.parse(productsStr || "{}");
-    return Object.values(parsedProducts);
-  }
-
-  addToWishlist(variantId, properties) {
-    const productsStr = localStorage.getItem("WISHLIST_PRODUCTS");
-    const parsedProducts = JSON.parse(productsStr || "{}");
-    const payload = {
-      ...parsedProducts,
-      [variantId]: properties
+  async getLists(shop) {
+    try {
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist?shop=${shop}`, {
+        method: "GET",
+        headers: {
+          "ngrok-skip-browser-warning": "69420",
+        }
+      });
+      const { data } = await res.json();
+      return data || [];
+    } catch (err) {
+      console.error(err);
     }
-    localStorage.setItem("WISHLIST_PRODUCTS", JSON.stringify(payload));
   }
 
-  removeFromWishlist(variantId) {
-    const productsStr = localStorage.getItem("WISHLIST_PRODUCTS");
-    const parsedProducts = JSON.parse(productsStr || "{}");
-    delete parsedProducts[variantId];
-    localStorage.setItem("WISHLIST_PRODUCTS", JSON.stringify(parsedProducts));
+  async addToWishlist(shop, variantId, properties) {
+    try {
+      const payload = {
+        shop: shop,
+        images: [properties?.featured_image?.src || ""],
+        name: properties?.name,
+        price: properties?.price + "",
+        compareAtPrice: properties?.compare_at_price + "",
+        productId: variantId,
+      }
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist`, {
+        method: "POST",
+        headers: {
+          "ngrok-skip-browser-warning": "69420",
+        },
+        body: JSON.stringify(payload)
+      });
+      await res.json();
+    } catch (err) {
+      console.error(err);
+    }
   }
 
-  isListed(variantId) {
-    const productsStr = localStorage.getItem("WISHLIST_PRODUCTS");
-    const parsedProducts = JSON.parse(productsStr || "{}");
-    return !!parsedProducts[variantId];
+  async removeFromWishlist(shop, variantId) {
+    try {
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist?shop=${shop}&productId=${variantId}`, {
+        method: "DELETE",
+        headers: {
+          "ngrok-skip-browser-warning": "69420",
+        },
+      });
+      await res.json();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async isListed(shop, variantId) {
+    try {
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist?shop=${shop}&productId=${variantId}`, {
+        method: "GET",
+        headers: {
+          "ngrok-skip-browser-warning": "69420",
+        }
+      });
+      const data = await res.json();
+      return !!data?.data?.id;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   }
 }
 
@@ -40,66 +79,80 @@ class ATWButton extends HTMLElement {
     product: null,
     variant: null,
     properties: {},
+    styleVariables: "",
+    atwBtnStyles: "",
+    checked: false
   }
 
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this.render({});
     this.state = {
       shop: this.getAttribute("shop"),
       product: this.getAttribute("product"),
       variant: this.getAttribute("variant"),
       properties: this.getAttribute("properties"),
+      styleVariables: "",
+      atwBtnStyles: "",
+      checked: false
     }
-    this.service = new LocalStorageService();
-    this.updateElementState();
+    this.service = new BackendService();
+    this.render({
+      loading: true
+    });
     this.fetchBtnStyles();
+    this.updateElementState();
   }
 
   async fetchBtnStyles() {
     try {
-      // TODO: Update
       const res = await fetch(`https://add-to-wishlist.vercel.app/api/customization?shop=${this.state.shop}`, {
         headers: {
           "ngrok-skip-browser-warning": "69420",
         }
       });
       const json = await res.json();
-      this.shadowRoot.querySelector("button")?.setAttribute("style", json?.data?.atwBtnStyles);
+      this.state.styleVariables = Object.entries(JSON.parse(json?.data?.styleVariables || "{}"))?.map(([key, val]) => `${key}:${val};`).join("");
+      this.state.atwBtnStyles = json?.data?.atwBtnStyles;
+      this.updateTemplate();
     } catch (err) {
       console.error(err);
     }
   }
 
+  updateTemplate() {
+    this.shadowRoot.querySelector("div")?.setAttribute("style", this.state.styleVariables);
+    this.shadowRoot.querySelector("div").innerHTML = `
+      <button style="${this.state.atwBtnStyles}">${this.state.checked ? "Added to Wishlist" : "Add to Wishlist"}</button>
+    `;
+    this.attachBtnEventListener();
+  }
+
   attachBtnEventListener() {
     this.atwBtn = this.shadowRoot.querySelector("button");
     this.atwBtn?.addEventListener("click", (e) => {
-      const isChecked = this?.getAttribute("checked") === "true";
+      const isChecked = this.state.checked;
       const newValue = !isChecked;
       if (newValue) this.addVariantToWishlist();
       else this.removeVariantFromWishlist();
       this.setAttribute("checked", newValue);
-      this.render({
-        isChecked: newValue
-      })
+      this.state.checked = newValue;
+      this.updateTemplate();
     })
   }
 
-  updateElementState() {
-    const isListed = this.service.isListed(this.state?.variant);
-    this.setAttribute("checked", isListed);
-    this.render({
-      isChecked: isListed
-    })
+  async updateElementState() {
+    const isListed = await this.service.isListed(this.state.shop, this.state?.variant);
+    this.state.checked = isListed;
+    this.updateTemplate();
   }
 
   addVariantToWishlist() {
-    this.service.addToWishlist(this.state?.variant, JSON.parse(this.state.properties || "{}"));
+    this.service.addToWishlist(this.state?.shop, this.state?.variant, JSON.parse(this.state.properties || "{}"));
   }
 
   removeVariantFromWishlist() {
-    this.service.removeFromWishlist(this.state?.variant);
+    this.service.removeFromWishlist(this.state.shop, this.state?.variant);
   }
 
   render(props) {
@@ -112,7 +165,7 @@ class ATWButton extends HTMLElement {
 
   css() {
     return `
-      :host > button {
+      :host > div {
         --atw-btn-background: #101010;
         --atw-btn-foreground: #FFFFFF;
         --atw-btn-border: #101010;
@@ -121,6 +174,9 @@ class ATWButton extends HTMLElement {
         --atw-btn-height: auto;
         --atw-btn-width: auto;
         --atw-btn-root: 10px;
+      }
+
+      :host > div > button {
         width: var(--atw-btn-width);
         height: var(--atw-btn-height);
         font-size: calc((var(--atw-btn-root)* 1.8));
@@ -136,9 +192,11 @@ class ATWButton extends HTMLElement {
     `;
   }
 
-  template({ isChecked }) {
+  template({ isChecked, loading }) {
     return `
-      <button>${isChecked ? "Added To Wishlist" : "Add To Wishlist"}</button>
+      <div>
+        ${loading ? '<p>Loading...</p>' : '<button>${isChecked ? "Added To Wishlist" : "Add To Wishlist"}</button>'}
+      </div>
     `;
   }
 
@@ -169,47 +227,22 @@ class ATWButton extends HTMLElement {
       ...this.state,
       [name]: value
     }
-    this.updateElementState();
   }
 }
 
 class ATWList extends HTMLElement {
+  state = {
+    shop: null,
+  }
+
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this.service = new LocalStorageService();
-    this.render({
-      items: this.service.getLists()
-    });
-
-    this.atwItems = this.shadowRoot.querySelectorAll(".Wishlist__Item");
-    Array.from(this.atwItems).forEach(el => {
-      el?.querySelector(".Wishlist__Remove").addEventListener("click", (e) => {
-        const id = e?.target?.dataset?.id;
-        this.service?.removeFromWishlist(id);
-      });
-      el?.querySelector(".Wishlist__ATC").addEventListener("click", async (e) => {
-        const id = e?.target?.dataset?.id;
-        await this.addToCart(id);
-        this.service.removeFromWishlist(id);
-        this.render({
-          items: this.service.getLists()
-        });
-      });
-    });
-
-    this.atwAddAllBtn = this.shadowRoot.querySelector(".Wishlist__AddAll");
-    this.atwAddAllBtn?.addEventListener("click", async () => {
-      const items = this.service.getLists();
-      if (!items?.length) return;
-      for (const product of items) {
-        await this.addToCart(product.id);
-        await this.service.removeFromWishlist(product.id);
-      }
-      this.render({
-        items: this.service.getLists()
-      });
-    })
+    this.state = {
+      shop: this.getAttribute("shop"),
+    }
+    this.service = new BackendService();
+    this.render();
   }
 
   async addToCart(id) {
@@ -234,8 +267,8 @@ class ATWList extends HTMLElement {
     }
   }
 
-  render(props) {
-    const { items = [] } = props;
+  async render(props) {
+    const items = await this.service.getLists(this.state.shop);
     this.shadowRoot.innerHTML = `
       <style>${this.css(props)}</style>
       <div class="Wishlist">
@@ -250,9 +283,9 @@ class ATWList extends HTMLElement {
           ${items?.map(item => `
             <div class="Wishlist__Item">
               <div class="Wishlist__Media">
-                <button data-id="${item?.id}" class="Wishlist__Remove">X</button>
+                <button data-id="${item?.productId}" class="Wishlist__Remove">X</button>
                 <img
-                  src="${item?.featured_image?.src}"
+                  src="${item?.images?.[0]}"
                   alt=""
                   loading="lazy"
                   decoding="async"
@@ -267,12 +300,14 @@ class ATWList extends HTMLElement {
                     style: 'currency',
                     currency: 'BDT',
                   })?.format(item?.price)}</span>
+                  ${item?.compareAtPrice && item?.compareAtPrice !== item?.price ? `
                   <span class="Wishlist__ComparePrice">${new Intl.NumberFormat('en-US', {
                     style: 'currency',
                     currency: 'BDT',
-                  })?.format(item?.compare_at_price)}</span>
+                  })?.format(item?.compareAtPrice)}</span>
+                  ` : ''}
                 </p>
-                <button data-id="${item?.id}" class="Wishlist__ATC">Add to cart</button>
+                <button data-id="${item?.productId}" class="Wishlist__ATC">Add to cart</button>
               </div>
             </div>
           `)?.join("")}
@@ -286,6 +321,31 @@ class ATWList extends HTMLElement {
         ` : ""}
       </div>
     `;
+    this.atwItems = this.shadowRoot.querySelectorAll(".Wishlist__Item");
+    Array.from(this.atwItems).forEach(el => {
+      el?.querySelector(".Wishlist__Remove").addEventListener("click", (e) => {
+        const id = e?.target?.dataset?.id;
+        this.service?.removeFromWishlist(this.state.shop, id);
+        this.render();
+      });
+      el?.querySelector(".Wishlist__ATC").addEventListener("click", async (e) => {
+        const id = e?.target?.dataset?.id;
+        await this.addToCart(id);
+        this.service.removeFromWishlist(this.state.shop, id);
+        this.render();
+      });
+    });
+
+    this.atwAddAllBtn = this.shadowRoot.querySelector(".Wishlist__AddAll");
+    this.atwAddAllBtn?.addEventListener("click", async () => {
+      const items = await this.service.getLists(this.state.shop);
+      if (!items?.length) return;
+      for (const product of items) {
+        await this.addToCart(product.productId);
+        await this.service.removeFromWishlist(this.state.shop, product.productId);
+      }
+      this.render();
+    })
   }
 
   css(props) {
