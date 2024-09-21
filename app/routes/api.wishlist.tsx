@@ -53,7 +53,9 @@ export async function action({
           name: body.name,
           price: body.price,
           compareAtPrice: body.compareAtPrice,
-          productId: body.productId
+          productId: body.productId,
+          // TODO:
+          customerId: ""
         }
       });
       return await cors(request, json({
