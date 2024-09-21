@@ -4,9 +4,9 @@ class BackendService {
     return BackendService.instance;
   }
 
-  async getLists(shop) {
+  async getLists(shop, customer) {
     try {
-      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist?shop=${shop}`, {
+      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/wishlist?shop=${shop}&customerId=${customer}`, {
         method: "GET",
         headers: {
           "ngrok-skip-browser-warning": "69420",
@@ -19,7 +19,7 @@ class BackendService {
     }
   }
 
-  async addToWishlist(shop, variantId, properties) {
+  async addToWishlist(shop, customerId, variantId, properties) {
     try {
       const payload = {
         shop: shop,
@@ -28,8 +28,9 @@ class BackendService {
         price: properties?.price + "",
         compareAtPrice: properties?.compare_at_price + "",
         productId: variantId,
+        customerId: customerId,
       }
-      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist`, {
+      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/wishlist`, {
         method: "POST",
         headers: {
           "ngrok-skip-browser-warning": "69420",
@@ -42,9 +43,9 @@ class BackendService {
     }
   }
 
-  async removeFromWishlist(shop, variantId) {
+  async removeFromWishlist(shop, customer, variantId) {
     try {
-      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist?shop=${shop}&productId=${variantId}`, {
+      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/wishlist?shop=${shop}&productId=${variantId}&customerId=${customer}`, {
         method: "DELETE",
         headers: {
           "ngrok-skip-browser-warning": "69420",
@@ -56,9 +57,9 @@ class BackendService {
     }
   }
 
-  async isListed(shop, variantId) {
+  async isListed(shop, customer, variantId) {
     try {
-      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist?shop=${shop}&productId=${variantId}`, {
+      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/wishlist?shop=${shop}&productId=${variantId}&customerId=${customer}`, {
         method: "GET",
         headers: {
           "ngrok-skip-browser-warning": "69420",
@@ -78,6 +79,7 @@ class ATWButton extends HTMLElement {
     shop: null,
     product: null,
     variant: null,
+    customer: null,
     properties: {},
     styleVariables: "",
     atwBtnStyles: "",
@@ -90,6 +92,7 @@ class ATWButton extends HTMLElement {
     this.state = {
       shop: this.getAttribute("shop"),
       product: this.getAttribute("product"),
+      customer: this.getAttribute("customer"),
       variant: this.getAttribute("variant"),
       properties: this.getAttribute("properties"),
       styleVariables: "",
@@ -106,7 +109,7 @@ class ATWButton extends HTMLElement {
 
   async fetchBtnStyles() {
     try {
-      const res = await fetch(`https://add-to-wishlist.vercel.app/api/customization?shop=${this.state.shop}`, {
+      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/customization?shop=${this.state.shop}`, {
         headers: {
           "ngrok-skip-browser-warning": "69420",
         }
@@ -114,13 +117,16 @@ class ATWButton extends HTMLElement {
       const json = await res.json();
       this.state.styleVariables = Object.entries(JSON.parse(json?.data?.styleVariables || "{}"))?.map(([key, val]) => `${key}:${val};`).join("");
       this.state.atwBtnStyles = json?.data?.atwBtnStyles;
-      this.updateTemplate();
+      this.updateTemplate({
+        loading: true
+      });
     } catch (err) {
       console.error(err);
     }
   }
 
-  updateTemplate() {
+  updateTemplate({ loading } = {}) {
+    if (loading) return;
     this.shadowRoot.querySelector("div")?.setAttribute("style", this.state.styleVariables);
     this.shadowRoot.querySelector("div").innerHTML = `
       <button style="${this.state.atwBtnStyles}">${this.state.checked ? "Added to Wishlist" : "Add to Wishlist"}</button>
@@ -142,17 +148,18 @@ class ATWButton extends HTMLElement {
   }
 
   async updateElementState() {
-    const isListed = await this.service.isListed(this.state.shop, this.state?.variant);
+    await sleep(1000);
+    const isListed = await this.service.isListed(this.state.shop, this.state.customer, this.state?.variant);
     this.state.checked = isListed;
     this.updateTemplate();
   }
 
   addVariantToWishlist() {
-    this.service.addToWishlist(this.state?.shop, this.state?.variant, JSON.parse(this.state.properties || "{}"));
+    this.service.addToWishlist(this.state?.shop, this.state.customer, this.state?.variant, JSON.parse(this.state.properties || "{}"));
   }
 
   removeVariantFromWishlist() {
-    this.service.removeFromWishlist(this.state.shop, this.state?.variant);
+    this.service.removeFromWishlist(this.state.shop, this.state.customer, this.state?.variant);
   }
 
   render(props) {
@@ -206,6 +213,7 @@ class ATWButton extends HTMLElement {
       "product",
       "variant",
       "properties",
+      "customer",
     ]
   }
 
@@ -215,6 +223,7 @@ class ATWButton extends HTMLElement {
       "product",
       "variant",
       "properties",
+      "customer",
     ].includes(name)) this.updateState(name, newValue);
     else this[name] = {
       oldValue,
@@ -233,6 +242,7 @@ class ATWButton extends HTMLElement {
 class ATWList extends HTMLElement {
   state = {
     shop: null,
+    customer: null,
   }
 
   constructor() {
@@ -240,9 +250,35 @@ class ATWList extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this.state = {
       shop: this.getAttribute("shop"),
+      customer: this.getAttribute("customer"),
     }
     this.service = new BackendService();
     this.render();
+  }
+
+  static get observedAttributes() {
+    return [
+      "shop",
+      "customer",
+    ]
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    if ([
+      "shop",
+      "customer",
+    ].includes(name)) this.updateState(name, newValue);
+    else this[name] = {
+      oldValue,
+      newValue,
+    }
+  }
+
+  updateState(name, value) {
+    this.state = {
+      ...this.state,
+      [name]: value
+    }
   }
 
   async addToCart(id) {
@@ -268,7 +304,8 @@ class ATWList extends HTMLElement {
   }
 
   async render(props) {
-    const items = await this.service.getLists(this.state.shop);
+    await sleep(1000);
+    const items = await this.service.getLists(this.state.shop, this.state.customer);
     this.shadowRoot.innerHTML = `
       <style>${this.css(props)}</style>
       <div class="Wishlist">
@@ -325,24 +362,24 @@ class ATWList extends HTMLElement {
     Array.from(this.atwItems).forEach(el => {
       el?.querySelector(".Wishlist__Remove").addEventListener("click", (e) => {
         const id = e?.target?.dataset?.id;
-        this.service?.removeFromWishlist(this.state.shop, id);
+        this.service?.removeFromWishlist(this.state.shop, this.state.customer, id);
         this.render();
       });
       el?.querySelector(".Wishlist__ATC").addEventListener("click", async (e) => {
         const id = e?.target?.dataset?.id;
         await this.addToCart(id);
-        this.service.removeFromWishlist(this.state.shop, id);
+        this.service.removeFromWishlist(this.state.shop, this.state.customer, id);
         this.render();
       });
     });
 
     this.atwAddAllBtn = this.shadowRoot.querySelector(".Wishlist__AddAll");
     this.atwAddAllBtn?.addEventListener("click", async () => {
-      const items = await this.service.getLists(this.state.shop);
+      const items = await this.service.getLists(this.state.shop, this.state.customer);
       if (!items?.length) return;
       for (const product of items) {
         await this.addToCart(product.productId);
-        await this.service.removeFromWishlist(this.state.shop, product.productId);
+        await this.service.removeFromWishlist(this.state.shop, this.state.customer, product.productId);
       }
       this.render();
     })
@@ -531,3 +568,7 @@ class ATWList extends HTMLElement {
 
 customElements.define("atw-btn", ATWButton);
 customElements.define("atw-list", ATWList);
+
+function sleep(ms) {
+  return new Promise((res) => setTimeout(res, ms))
+}

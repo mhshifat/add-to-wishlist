@@ -1,6 +1,16 @@
 <atw-list
   shop="{{ shop.domain }}"
+  customer="{{ customer.id }}"
 ></atw-list>
+
+<script defer>
+  window.addEventListener("DOMContentLoaded", (e) => {
+    const customerId = "{{ customer.id }}";
+    Array.from(document.querySelectorAll("atw-list")).forEach(el => {
+      if (!customerId) el.setAttribute("customer", navigator.userAgent);
+    })
+  })
+</script>
 
 {% schema %}
 {

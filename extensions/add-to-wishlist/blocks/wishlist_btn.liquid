@@ -2,12 +2,14 @@
 
 <atw-btn
   shop="{{ shop.domain }}"
+  customer="{{ customer.id }}"
   product="{{ product.id }}"
   variant="{{ product.selected_or_first_available_variant.id }}"
   properties='{{ product.selected_or_first_available_variant | json }}'
 ></atw-btn>
 
 <script defer>
+  const customerId = "{{ customer.id }}";
   window.addEventListener("DOMContentLoaded", (e) => {
     const observer = new MutationObserver((list, obs) => {
       const variantId = new URLSearchParams(window.location.search).get("variant");
@@ -27,6 +29,9 @@
     observer.observe(document.body, {
       attributes: true,
       subtree: true
+    });
+    Array.from(document.querySelectorAll("atw-btn")).forEach(el => {
+      if (!customerId) el.setAttribute("customer", navigator.userAgent);
     })
   })
 </script>
