@@ -21,7 +21,7 @@ export async function loader({
         productId
       }
     });
-    return await cors(request, json({
+    return cors(request, json({
       success: true,
       data: wishlistItem
     }));
@@ -32,7 +32,7 @@ export async function loader({
       shop
     }
   });
-  return await cors(request, json({
+  return cors(request, json({
     success: true,
     data: wishlistItems
   }));
@@ -47,21 +47,24 @@ export async function action({
     case "POST": {
       const { id, ...body } = await request.json();
       console.log({ body });
-      const wishlistItem = await prisma.wishlist.create({
-        data: {
-          shop: body.shop,
-          images: body.images,
-          name: body.name,
-          price: body.price,
-          compareAtPrice: body.compareAtPrice,
-          productId: body.productId,
-          // TODO:
-          customerId: "asdasdasdasd"
-        }
-      });
-      return await cors(request, json({
+      // const wishlistItem = await prisma.wishlist.create({
+      //   data: {
+      //     shop: body.shop,
+      //     images: body.images,
+      //     name: body.name,
+      //     price: body.price,
+      //     compareAtPrice: body.compareAtPrice,
+      //     productId: body.productId,
+      //     // TODO:
+      //     customerId: "asdasdasdasd"
+      //   }
+      // });
+      // return await cors(request, json({
+      //   success: true,
+      //   data: wishlistItem
+      // }));
+      return cors(request, json({
         success: true,
-        data: wishlistItem
       }));
     }
     case "PUT": {
@@ -81,7 +84,7 @@ export async function action({
       const wishlistItems = await prisma.wishlist.deleteMany({
         where: { shop, productId }
       });
-      return await cors(request, json({
+      return cors(request, json({
         success: true,
         data: wishlistItems
       }));
