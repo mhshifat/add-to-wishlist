@@ -15,6 +15,14 @@ export async function loader({
     data: []
   });
 
+  // This is where you need to cors safe your request
+  if (request.method === "OPTIONS") {
+    const response = json({
+      status: 200,
+    });
+    return await cors(request, response);
+  }
+
   if (productId) {
     const wishlistItem = await prisma.wishlist.findFirst({
       where: {
@@ -47,10 +55,17 @@ export async function action({
   try {
     const searchParams = new URL(request.url).searchParams;
 
+    if (request.method === "OPTIONS") {
+      const response = json({
+        status: 200,
+      });
+      return await cors(request, response);
+    }
+
     switch (request.method) {
       case "POST": {
         console.log("Called............");
-        const { id, ...body } = await request.json();
+        const { id, ...body } = (await request.json()) || {};
         console.log("Called 2............");
         const wishlistItem = await prisma.wishlist.create({
           data: {
