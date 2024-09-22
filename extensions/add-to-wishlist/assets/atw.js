@@ -6,7 +6,7 @@ class BackendService {
 
   async getLists(shop, customer) {
     try {
-      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/wishlist?shop=${shop}&customerId=${customer}`, {
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist?shop=${shop}&customerId=${customer}`, {
         method: "GET",
         headers: {
           "ngrok-skip-browser-warning": "69420",
@@ -30,7 +30,7 @@ class BackendService {
         productId: variantId,
         customerId: customerId,
       }
-      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/wishlist`, {
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist`, {
         method: "POST",
         headers: {
           "ngrok-skip-browser-warning": "69420",
@@ -45,7 +45,7 @@ class BackendService {
 
   async removeFromWishlist(shop, customer, variantId) {
     try {
-      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/wishlist?shop=${shop}&productId=${variantId}&customerId=${customer}`, {
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist?shop=${shop}&productId=${variantId}&customerId=${customer}`, {
         method: "DELETE",
         headers: {
           "ngrok-skip-browser-warning": "69420",
@@ -59,7 +59,7 @@ class BackendService {
 
   async isListed(shop, customer, variantId) {
     try {
-      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/wishlist?shop=${shop}&productId=${variantId}&customerId=${customer}`, {
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist?shop=${shop}&productId=${variantId}&customerId=${customer}`, {
         method: "GET",
         headers: {
           "ngrok-skip-browser-warning": "69420",
@@ -109,7 +109,7 @@ class ATWButton extends HTMLElement {
 
   async fetchBtnStyles() {
     try {
-      const res = await fetch(`https://620d-103-103-124-33.ngrok-free.app/api/customization?shop=${this.state.shop}`, {
+      const res = await fetch(`https://add-to-wishlist.vercel.app/api/customization?shop=${this.state.shop}`, {
         headers: {
           "ngrok-skip-browser-warning": "69420",
         }
