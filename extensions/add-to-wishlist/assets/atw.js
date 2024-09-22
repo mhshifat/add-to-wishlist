@@ -23,7 +23,7 @@ class BackendService {
     try {
       const payload = {
         shop: shop,
-        images: [properties?.featured_image?.src || ""],
+        images: [properties?.featured_image?.src || properties?.images?.[0] || ""],
         name: properties?.name,
         price: properties?.price + "",
         compareAtPrice: properties?.compare_at_price + "",
@@ -159,7 +159,12 @@ class ATWButton extends HTMLElement {
   }
 
   addVariantToWishlist() {
-    this.service.addToWishlist(this.state?.shop, this.state.customer, this.state?.variant, JSON.parse(this.state.properties || "{}"));
+    const properties = JSON.parse(this.state.properties || "{}");
+    const moreProperties = JSON.parse(this.state.productData || "{}");
+    this.service.addToWishlist(this.state?.shop, this.state.customer, this.state?.variant, {
+      ...properties,
+      ...moreProperties
+    });
   }
 
   removeVariantFromWishlist() {
