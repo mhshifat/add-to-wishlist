@@ -163,7 +163,7 @@ class ATWButton extends HTMLElement {
     const moreProperties = JSON.parse(this.state.metadata || "{}");
     this.service.addToWishlist(this.state?.shop, this.state.customer, this.state?.variant, {
       ...properties,
-      ...moreProperties
+      images: moreProperties
     });
   }
 

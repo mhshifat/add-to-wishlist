@@ -6,7 +6,7 @@
   product="{{ product.id }}"
   variant="{{ product.selected_or_first_available_variant.id }}"
   properties='{{ product.selected_or_first_available_variant | json }}'
-  metadata='{{ product | json }}'
+  metadata='{{ product.images | json }}'
 ></atw-btn>
 
 <script defer>

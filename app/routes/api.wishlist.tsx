@@ -64,9 +64,7 @@ export async function action({
 
     switch (request.method) {
       case "POST": {
-        console.log("Called............");
         const { id, ...body } = (await request.json()) || {};
-        console.log("Called 2............");
         const wishlistItem = await prisma.wishlist.create({
           data: {
             shop: body.shop,
