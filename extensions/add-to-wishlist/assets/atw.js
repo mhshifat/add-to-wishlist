@@ -85,7 +85,8 @@ class ATWButton extends HTMLElement {
     properties: {},
     styleVariables: "",
     atwBtnStyles: "",
-    checked: false
+    checked: false,
+    productData: {}
   }
 
   constructor() {
@@ -97,6 +98,7 @@ class ATWButton extends HTMLElement {
       customer: this.getAttribute("customer"),
       variant: this.getAttribute("variant"),
       properties: this.getAttribute("properties"),
+      productData: this.getAttribute("productData"),
       styleVariables: "",
       atwBtnStyles: "",
       checked: false
@@ -216,6 +218,7 @@ class ATWButton extends HTMLElement {
       "variant",
       "properties",
       "customer",
+      "productData",
     ]
   }
 
@@ -226,6 +229,7 @@ class ATWButton extends HTMLElement {
       "variant",
       "properties",
       "customer",
+      "productData",
     ].includes(name)) this.updateState(name, newValue);
     else this[name] = {
       oldValue,
