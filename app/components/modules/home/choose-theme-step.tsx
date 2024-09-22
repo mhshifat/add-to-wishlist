@@ -17,6 +17,8 @@ export default function ChooseThemeStep() {
     <div className="w-full">
       <Await resolve={themesPromise}>
         {(data) => {
+          console.log({ data });
+
           const { themes } = data as { themes: ITheme[] }
           return (
             <ul className="flex flex-col rounded-lg border border-border overflow-hidden">
