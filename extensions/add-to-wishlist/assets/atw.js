@@ -33,9 +33,9 @@ class BackendService {
       const res = await fetch(`https://add-to-wishlist.vercel.app/api/wishlist`, {
         method: "POST",
         headers: {
-          "ngrok-skip-browser-warning": "69420",
           'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'ngrok-skip-browser-warning': '69420'
         },
         body: JSON.stringify(payload)
       });
