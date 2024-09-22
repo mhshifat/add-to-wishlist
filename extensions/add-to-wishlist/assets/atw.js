@@ -34,6 +34,8 @@ class BackendService {
         method: "POST",
         headers: {
           "ngrok-skip-browser-warning": "69420",
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify(payload)
       });
@@ -111,7 +113,7 @@ class ATWButton extends HTMLElement {
     try {
       const res = await fetch(`https://add-to-wishlist.vercel.app/api/customization?shop=${this.state.shop}`, {
         headers: {
-          "ngrok-skip-browser-warning": "69420",
+          "ngrok-skip-browser-warning": "69420"
         }
       });
       const json = await res.json();
