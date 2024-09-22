@@ -11,9 +11,12 @@ automatically_update_urls_on_dev = true
 dev_store_url = "my-custom-test-store-1.myshopify.com"
 include_config_on_deploy = true
 
+[access.admin]
+direct_api_mode = "online"
+
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_themes,write_products"
+scopes = "read_products,read_themes,write_products"
 
 [auth]
 redirect_urls = [
@@ -24,6 +27,11 @@ redirect_urls = [
 
 [webhooks]
 api_version = "2024-07"
+
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled" ]
+  uri = "/webhooks"
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 
 [pos]
 embedded = false
