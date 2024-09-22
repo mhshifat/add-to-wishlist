@@ -86,7 +86,7 @@ class ATWButton extends HTMLElement {
     styleVariables: "",
     atwBtnStyles: "",
     checked: false,
-    productData: {}
+    productdata: {}
   }
 
   constructor() {
@@ -98,7 +98,7 @@ class ATWButton extends HTMLElement {
       customer: this.getAttribute("customer"),
       variant: this.getAttribute("variant"),
       properties: this.getAttribute("properties"),
-      productData: this.getAttribute("productData"),
+      productdata: this.getAttribute("productdata"),
       styleVariables: "",
       atwBtnStyles: "",
       checked: false
@@ -160,7 +160,7 @@ class ATWButton extends HTMLElement {
 
   addVariantToWishlist() {
     const properties = JSON.parse(this.state.properties || "{}");
-    const moreProperties = JSON.parse(this.state.productData || "{}");
+    const moreProperties = JSON.parse(this.state.productdata || "{}");
     this.service.addToWishlist(this.state?.shop, this.state.customer, this.state?.variant, {
       ...properties,
       ...moreProperties
@@ -223,7 +223,7 @@ class ATWButton extends HTMLElement {
       "variant",
       "properties",
       "customer",
-      "productData",
+      "productdata",
     ]
   }
 
@@ -234,7 +234,7 @@ class ATWButton extends HTMLElement {
       "variant",
       "properties",
       "customer",
-      "productData",
+      "productdata",
     ].includes(name)) this.updateState(name, newValue);
     else this[name] = {
       oldValue,
