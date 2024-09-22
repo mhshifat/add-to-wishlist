@@ -6,6 +6,8 @@ import { authenticate } from "~/shopify.server";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { session } = await authenticate.admin(request);
   const accessToken = session?.accessToken;
+  console.log({ accessToken });
+
   const themesPromise = getThemes(session.shop, accessToken!);
 
   return defer({
